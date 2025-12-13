@@ -41,5 +41,32 @@ def evaluate():
 
     return str(response.choices[0].message.content)
 
+@app.route('/api/toppings', methods=['POST'])
+def toppings():
+    client = OpenAI(
+        api_key=os.environ.get("AI_KEY", ""),
+        base_url=os.environ.get("AI_URL", "")
+    )
+
+    response = client.chat.completions.create(
+        model=os.environ.get("AI_MODEL"),
+        messages=[
+            {"role": "system", "content": "A cross-species pizza generator that brings giant raccoons and friendly aliens together"},
+            {
+                "role": "user",
+                "content":
+                    f'''    
+                    Provide a topping list for a cross-species pizza generator. They should be pretty crazy and random.
+                    Example format: {{"toppings":["topping1","topping2"]}}
+                    You should return 12 toppings.
+                    Return the JSON object exactly as shown.
+                    Do not use tags like ```json.
+                    '''
+            }
+        ]
+    )
+
+    return str(response.choices[0].message.content)
+
 if __name__ == '__main__':
     app.run()
