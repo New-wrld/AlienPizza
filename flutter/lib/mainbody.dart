@@ -2,10 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'page2.dart';
+import 'settings.dart';
 
 class MainBody extends StatefulWidget {
-  const MainBody({super.key});
+  final String title;
+  const MainBody({super.key, required this.title, required this.onThemeChanged});
+  final VoidCallback onThemeChanged;
 
   @override
   State<MainBody> createState() => _MainBodyState();
@@ -23,8 +27,12 @@ class _MainBodyState extends State<MainBody> {
 
   Future<void> fetchToppings() async {
     try {
-      final response = await http.get(Uri.parse(
-          'https://alien-pizza-28ebb921ad43.herokuapp.com/api/toppings'));
+      final prefs = await SharedPreferences.getInstance();
+      final toppingsCount = prefs.getString('toppings_count') ?? '14';
+      final response = await http.get(
+        Uri.parse('https://alien-pizza-28ebb921ad43.herokuapp.com/api/toppings?count=$toppingsCount')
+      );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<String> toppings = List<String>.from(data['toppings']);
@@ -56,13 +64,13 @@ class _MainBodyState extends State<MainBody> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            Scaffold(
-              appBar: AppBar(
-                title: const Text('Alien Pizza Evaluation'),
-              ),
-              body: Screen2(selectedToppings: selectedToppings),
-            ),
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Alien Pizza Evaluation'),
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          ),
+          body: Screen2(selectedToppings: selectedToppings),
+        ),
       ),
     );
 
@@ -72,10 +80,48 @@ class _MainBodyState extends State<MainBody> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsPage(onThemeChanged: widget.onThemeChanged),
+                  ),
+                );
+                fetchToppings();
+              },
+            ),
+          ],
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(onThemeChanged: widget.onThemeChanged),
+                ),
+              );
+              fetchToppings();
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
