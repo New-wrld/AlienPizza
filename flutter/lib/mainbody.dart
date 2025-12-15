@@ -23,7 +23,7 @@ class _MainBodyState extends State<MainBody> {
 
   Future<void> fetchToppings() async {
     try {
-      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/toppings'));
+      final response = await http.get(Uri.parse('https://alien-pizza-28ebb921ad43.herokuapp.com/api/toppings'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<String> toppings = List<String>.from(data['toppings']);
