@@ -58,9 +58,10 @@ class _Screen2State extends State<Screen2> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (_isLoading)
-          const CircularProgressIndicator()
+          Center(child: const CircularProgressIndicator())
         else if (_error != null)
           Text(_error!, style: const TextStyle(color: Colors.red))
         else if (_pizzaData != null)

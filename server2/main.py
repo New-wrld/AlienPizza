@@ -50,7 +50,7 @@ async def evaluate(request: EvaluateRequest):
 
 
 @app.get("/api/toppings")
-async def toppings():
+async def toppings(count: int = 12):
     client = OpenAI(
         api_key=os.environ.get("API_KEY", ""),
         base_url=os.environ.get("API_URL", "")
@@ -63,10 +63,10 @@ async def toppings():
             {
                 "role": "user",
                 "content":
-                    f'''    
+                    f'''
                     Provide a topping list for a cross-species pizza generator. They should be pretty crazy and random.
                     Example format: {{"toppings":["topping1","topping2"]}}
-                    You should return 12 toppings.
+                    You should return {count} toppings.
                     Return the JSON object exactly as shown.
                     Do not use tags like ```json.
                     '''

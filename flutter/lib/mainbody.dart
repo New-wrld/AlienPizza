@@ -23,7 +23,8 @@ class _MainBodyState extends State<MainBody> {
 
   Future<void> fetchToppings() async {
     try {
-      final response = await http.get(Uri.parse('https://alien-pizza-28ebb921ad43.herokuapp.com/api/toppings'));
+      final response = await http.get(Uri.parse(
+          'https://alien-pizza-28ebb921ad43.herokuapp.com/api/toppings'));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<String> toppings = List<String>.from(data['toppings']);
@@ -55,12 +56,13 @@ class _MainBodyState extends State<MainBody> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Alien Pizza Evaluation'),
-          ),
-          body: Screen2(selectedToppings: selectedToppings),
-        ),
+        builder: (context) =>
+            Scaffold(
+              appBar: AppBar(
+                title: const Text('Alien Pizza Evaluation'),
+              ),
+              body: Screen2(selectedToppings: selectedToppings),
+            ),
       ),
     );
 
@@ -80,30 +82,47 @@ class _MainBodyState extends State<MainBody> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               'Select your pizza toppings!',
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .headlineSmall,
             ),
           ),
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
+              childAspectRatio: 2,
+              padding: const EdgeInsets.all(8.0),
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
               children: List.generate(checkboxData.length, (index) {
                 return Card(
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        value: checkboxData[index]?.isChecked ?? false,
-                        onChanged: (value) {
-                          setState(() {
-                            if (checkboxData[index] != null) {
-                              checkboxData[index]!.isChecked = value ?? false;
-                            }
-                          });
-                        },
-                      ),
-                      Expanded(
-                        child: Text(checkboxData[index]?.label ?? ''),
-                      ),
-                    ],
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (checkboxData[index] != null) {
+                          checkboxData[index]!.isChecked =
+                          !checkboxData[index]!.isChecked;
+                        }
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: checkboxData[index]?.isChecked ?? false,
+                          onChanged: (value) {
+                            setState(() {
+                              if (checkboxData[index] != null) {
+                                checkboxData[index]!.isChecked = value ?? false;
+                              }
+                            });
+                          },
+                        ),
+                        Expanded(
+                          child: Text(checkboxData[index]?.label ?? ''),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }),
@@ -111,12 +130,24 @@ class _MainBodyState extends State<MainBody> {
           ),
         ],
       ),
-      floatingActionButton: checkboxData.values.any((item) => item.isChecked)
-        ? FloatingActionButton(
-          onPressed: _navigateToScreen2,
-          child: const Icon(Icons.arrow_forward),
-        )
-        : null,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'refresh',
+            onPressed: fetchToppings,
+            child: const Icon(Icons.refresh),
+          ),
+          if (checkboxData.values.any((item) => item.isChecked)) ...[
+            const SizedBox(width: 12),
+            FloatingActionButton(
+              heroTag: 'forward',
+              onPressed: _navigateToScreen2,
+              child: const Icon(Icons.arrow_forward),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
